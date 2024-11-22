@@ -394,7 +394,7 @@ const Quiz = () => {
       }
       const data = await response.json();
 
-      const questionsResponse = await fetch(`http://localhost:5000${data.fileUrl}`);
+      const questionsResponse = await fetch(`${API_URL}{data.fileUrl}`);
       if (!questionsResponse.ok) {
         throw new Error(`Error al cargar las preguntas: ${questionsResponse.status} ${questionsResponse.statusText}`);
       }

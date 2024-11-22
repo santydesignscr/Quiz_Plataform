@@ -1,5 +1,0 @@
-{
-  "buildpacks": {
-    "node": "18.x"
-  }
-}
