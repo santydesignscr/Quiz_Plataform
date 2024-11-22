@@ -1,38 +1,38 @@
 services:
-  - type: web
-    name: backend-api
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && node server.js
-    disk:
-      name: backend
-      mountPath: /opt/render/project/src/backend
-      sizeGB: 1
-    healthCheckPath: /api/health
-    envVars:
-      - key: VITE_API_URL
-        value: https://quiz-plataform-api.onrender.com
-      - key: URL1
-        value: https://quiz-plataform.onrender.com
-      - key: URL2
-        value: https://quiz-plataform.onrender.com
-      - key: FRONTEND_DOMAIN
-        value: https://quiz-plataform.onrender.com
+- type: web
+  name: quizz-plataform
+  runtime: static
+  repo: https://github.com/santydesignscr/Quiz_Plataform
+  envVars:
+  - key: VITE_API_URL
+    sync: false
+  buildCommand: |
+    npm install; npm run build
+    echo "VITE_API_URL=$VITE_API_URL" > .env
+    echo "URL1=$URL1" >> .env
+    echo "URL2=$URL2" >> .env
+    echo "VITE_API_URL=$VITE_API_URL" > .env.development
+    echo "URL1=$URL1" >> .env.development
+    echo "URL2=$URL2" >> .env.development
 
-  - type: web
-    name: frontend-app
-    buildCommand: | 
-      cd frontend && npm install && npm run build
-      echo "VITE_API_URL=$VITE_API_URL" > .env
-      echo "URL1=$URL1" >> .env
-      echo "URL2=$URL2" >> .env
-      echo "VITE_API_URL=$VITE_API_URL" > .env.development
-      echo "URL1=$URL1" >> .env.development
-      echo "URL2=$URL2" >> .env.development
-    staticPublishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://quiz-plataform-api.onrender.com
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+  staticPublishPath: dist
+  rootDir: frontend
+
+- type: web
+  name: quizz-plataform-api
+  buildCommand: cd backend && npm install
+  startCommand: cd backend && node server.js
+  disk:
+    name: backend
+    mountPath: /opt/render/project/src/backend
+    sizeGB: 1
+  healthCheckPath: /api/health
+  envVars:
+    - key: VITE_API_URL
+      value: https://quiz-plataform-api.onrender.com
+    - key: URL1
+      value: https://quiz-plataform.onrender.com
+    - key: URL2
+      value: https://quiz-plataform.onrender.com
+    - key: FRONTEND_DOMAIN
+      value: https://quiz-plataform.onrender.com
