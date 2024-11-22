@@ -465,6 +465,12 @@ app.get('/api/backup', async (req, res) => {
 // Ruta para restaurar los datos a partir de un ZIP
 app.post('/api/restore', upload.single('backup'), async (req, res) => {
   try {
+    const { password } = req.body;
+    const restorePass = process.env.RESTORE_PASS || "";
+    if (password !== restorePass) {
+      return res.status(403).json({ message: 'Contraseña incorrecta o no proporcionada.' });
+    }
+
     if (!req.file) {
       return res.status(400).json({ message: 'Por favor, sube un archivo ZIP válido.' });
     }
