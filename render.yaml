@@ -2,11 +2,22 @@ services:
   - type: web
     name: backend-api
     env: node
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && node server.js
     envVars:
-      - key: NODE_ENV
-        value: production
+      - key: VITE_API_URL
+        value: http://quiz-plataform.vercel.app
+      - key: URL1
+        value: http://quiz-plataform.vercel.app
+      - key: URL2
+        value: http://quiz-plataform.vercel.app
+    buildCommand: |
+      cd backend && npm install
+      echo "VITE_API_URL=$BACKEND_URL" > .env
+      echo "URL1=$BACKEND_URL" > .env
+      echo "URL2=$BACKEND_URL" > .env
+      echo "VITE_API_URL=$BACKEND_URL" > .env.development
+      echo "URL1=$BACKEND_URL" > .env.development
+      echo "URL2=$BACKEND_URL" > .env.development
+    startCommand: cd backend && node server.js
     disk:
       name: backend
       mountPath: /opt/render/project/src/backend
