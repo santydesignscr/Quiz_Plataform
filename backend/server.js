@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs').promises;
+const fsNP = require('fs').promises;
 const path = require('path');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -492,19 +493,25 @@ app.post('/api/restore', uploadZip.single('backup'), async (req, res) => {
     const backupPath = req.file.path;
 
     // Extraer el contenido del archivo ZIP
-    await fs.createReadStream(backupPath)
-      .pipe(unzipper.Extract({ path: __dirname }))
-      .promise();
+    await new Promise((resolve, reject) => {
+      fsNP.createReadStream(backupPath)
+        .pipe(unzipper.Extract({ path: __dirname }))
+        .on('close', resolve)
+        .on('error', reject);
+    });
 
     // Verificar que el archivo `quizzes_metadata.json` y la carpeta `public` existan
     const metadataPath = path.join(__dirname, 'quizzes_metadata.json');
     const publicDir = path.join(__dirname, 'public');
 
-    if (!(await fs.stat(metadataPath).catch(() => false))) {
+    const metadataExists = await fs.stat(metadataPath).catch(() => false);
+    const publicExists = await fs.stat(publicDir).catch(() => false);
+
+    if (!metadataExists) {
       return res.status(400).json({ message: 'Archivo de metadatos no encontrado en el respaldo.' });
     }
 
-    if (!(await fs.stat(publicDir).catch(() => false))) {
+    if (!publicExists) {
       return res.status(400).json({ message: 'Carpeta "public" no encontrada en el respaldo.' });
     }
 
