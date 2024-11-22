@@ -20,7 +20,14 @@ services:
 
   - type: web
     name: frontend-app
-    buildCommand: cd frontend && npm install && npm run build
+    buildCommand: | 
+      cd frontend && npm install && npm run build
+      echo "VITE_API_URL=$VITE_API_URL" > .env
+      echo "URL1=$URL1" >> .env
+      echo "URL2=$URL2" >> .env
+      echo "VITE_API_URL=$VITE_API_URL" > .env.development
+      echo "URL1=$URL1" >> .env.development
+      echo "URL2=$URL2" >> .env.development
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
