@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast"
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 const BackupRestore = () => {
   const [backupFile, setBackupFile] = useState(null);
   const [password, setPassword] = useState('');
@@ -13,7 +15,7 @@ const BackupRestore = () => {
 
   const handleBackupDownload = async () => {
     try {
-      const response = await axios.get('/api/backup', { responseType: 'blob' });
+      const response = await axios.get(API_URL+'/backup', { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -39,7 +41,7 @@ const BackupRestore = () => {
     formData.append('password', password);
 
     try {
-      const response = await axios.post('/api/restore', formData, {
+      const response = await axios.post(API_URL+'/restore', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast({ title: response.data.message });
