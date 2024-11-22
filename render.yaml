@@ -1,22 +1,24 @@
 services:
+  envVars:
+    - key: VITE_API_URL
+      value: https://quiz-plataform-api.onrender.com
+    - key: URL1
+      value: https://quiz-plataform.onrender.com
+    - key: URL2
+      value: https://quiz-plataform.onrender.com
+    - key: FRONTEND_DOMAIN
+      value: https://quiz-plataform.onrender.com
   - type: web
     name: backend-api
     env: node
-    envVars:
-      - key: VITE_API_URL
-        value: http://quiz-plataform.vercel.app
-      - key: URL1
-        value: http://quiz-plataform.vercel.app
-      - key: URL2
-        value: http://quiz-plataform.vercel.app
     buildCommand: |
       cd backend && npm install
-      echo "VITE_API_URL=$BACKEND_URL" > .env
-      echo "URL1=$BACKEND_URL" > .env
-      echo "URL2=$BACKEND_URL" > .env
-      echo "VITE_API_URL=$BACKEND_URL" > .env.development
-      echo "URL1=$BACKEND_URL" > .env.development
-      echo "URL2=$BACKEND_URL" > .env.development
+      echo "VITE_API_URL=$VITE_API_URL" > .env
+      echo "URL1=$URL1" > .env
+      echo "URL2=$URL2" > .env
+      echo "VITE_API_URL=$VITE_API_URL" > .env.development
+      echo "URL1=$URL1" > .env.development
+      echo "URL2=$URL2" > .env.development
     startCommand: cd backend && node server.js
     disk:
       name: backend
@@ -37,7 +39,10 @@ services:
 routes:
   - type: rewrite
     source: /api/*
-    destination: https://backend-api.onrender.com/api/:splat
+    destination: ${VITE_API_URL}/api/:splat
   - type: rewrite
     source: /public/*
-    destination: https://backend-api.onrender.com/public/:splat
+    destination: ${VITE_API_URL}/public/:splat
+  - type: rewrite
+    source: /*
+    destination: ${FRONTEND_DOMAIN}/:splat
