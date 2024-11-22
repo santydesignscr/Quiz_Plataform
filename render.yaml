@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: backend-api
+    env: node
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+    disk:
+      name: backend
+      mountPath: /opt/render/project/src/backend
+      sizeGB: 1
+    staticPublishPath: ./backend/public
+    healthCheckPath: /api/health
+
+  - type: static
+    name: frontend-app
+    buildCommand: cd frontend && npm install && npm run build
+    publishPath: frontend/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+routes:
+  - type: rewrite
+    source: /api/*
+    destination: https://backend-api.onrender.com/api/:splat
+  - type: rewrite
+    source: /public/*
+    destination: https://backend-api.onrender.com/public/:splat
