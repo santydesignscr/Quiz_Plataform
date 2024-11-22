@@ -31,8 +31,8 @@ services:
     - key: VITE_API_URL
       value: https://quiz-plataform-api.onrender.com
     - key: URL1
-      value: https://quiz-plataform.onrender.com
+      value: https://quizz-plataform.onrender.com
     - key: URL2
-      value: https://quiz-plataform.onrender.com
+      value: https://quizz-plataform.onrender.com
     - key: FRONTEND_DOMAIN
-      value: https://quiz-plataform.onrender.com
+      value: https://quizz-plataform.onrender.com
