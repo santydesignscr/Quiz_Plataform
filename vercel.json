@@ -1,0 +1,27 @@
+{
+    "builds": [
+      {
+        "src": "backend/server.js",
+        "use": "@vercel/node"
+      },
+      {
+        "src": "frontend/dist/**",
+        "use": "@vercel/static-build"
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/api/(.*)",
+        "destination": "/backend/server.js"
+      },
+      {
+        "source": "/public/(.*)",
+        "destination": "/backend/server.js"
+      },
+      {
+        "source": "/(.*)",
+        "destination": "/frontend/dist/index.html"
+      }
+    ]
+  }
+  

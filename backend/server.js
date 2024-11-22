@@ -5,7 +5,7 @@ const path = require('path');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '../frontend/.env' });
 
 const PORT = process.env.PORT || 5000;
 const URL1 = process.env.URL1 || 'http://localhost:3000';
