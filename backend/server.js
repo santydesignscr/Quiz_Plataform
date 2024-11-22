@@ -39,6 +39,20 @@ const upload = multer({
   }
 });
 
+const uploadZip = multer({
+  storage: storage,
+  limits: {
+    fileSize: 500 * 1024 * 1024 // 25MB límite de archivo
+  },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext === '.zip') {
+      return cb(null, true);
+    }
+    cb(new Error('Solo se permiten archivos JSON'));
+  }
+});
+
 // Hashear una contraseña
 const hashPassword = async (password) => {
   try {
@@ -463,7 +477,7 @@ app.get('/api/backup', async (req, res) => {
 });
 
 // Ruta para restaurar los datos a partir de un ZIP
-app.post('/api/restore', upload.single('backup'), async (req, res) => {
+app.post('/api/restore', uploadZip.single('backup'), async (req, res) => {
   try {
     const { password } = req.body;
     const restorePass = process.env.RESTORE_PASS || "";
