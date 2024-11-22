@@ -5,6 +5,9 @@ const path = require('path');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
+const archiver = require('archiver');
+const unzipper = require('unzipper');
+
 const PORT = process.env.PORT || 5000;
 const URL1 = process.env.URL1 || 'http://localhost:3000';
 const URL2 = process.env.URL2 || 'http://localhost:5173';
@@ -424,6 +427,74 @@ app.put('/api/quiz/:id', upload.single('file'), async (req, res) => {
       message: 'Error al actualizar el quiz',
       error: error.message
     });
+  }
+});
+
+// Ruta para realizar un respaldo de los datos
+app.get('/api/backup', async (req, res) => {
+  try {
+    const backupFileName = `backup-${Date.now()}.zip`;
+    const output = path.join(__dirname, backupFileName);
+
+    // Crear un archivo ZIP con `archiver`
+    const archive = archiver('zip', { zlib: { level: 9 } });
+    res.attachment(backupFileName);
+
+    // Manejo de errores
+    archive.on('error', (err) => {
+      console.error('Error creando archivo ZIP:', err);
+      res.status(500).send('Error creando respaldo');
+    });
+
+    archive.pipe(res);
+
+    // Agregar el archivo `quizzes_metadata.json` al ZIP
+    archive.file('quizzes_metadata.json', { name: 'quizzes_metadata.json' });
+
+    // Agregar el contenido de la carpeta `public` al ZIP
+    archive.directory('public/', 'public');
+
+    // Finalizar la creación del ZIP
+    await archive.finalize();
+  } catch (error) {
+    console.error('Error al realizar el respaldo:', error);
+    res.status(500).json({ message: 'Error al realizar el respaldo', error: error.message });
+  }
+});
+
+// Ruta para restaurar los datos a partir de un ZIP
+app.post('/api/restore', upload.single('backup'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Por favor, sube un archivo ZIP válido.' });
+    }
+
+    const backupPath = req.file.path;
+
+    // Extraer el contenido del archivo ZIP
+    await fs.createReadStream(backupPath)
+      .pipe(unzipper.Extract({ path: __dirname }))
+      .promise();
+
+    // Verificar que el archivo `quizzes_metadata.json` y la carpeta `public` existan
+    const metadataPath = path.join(__dirname, 'quizzes_metadata.json');
+    const publicDir = path.join(__dirname, 'public');
+
+    if (!(await fs.stat(metadataPath).catch(() => false))) {
+      return res.status(400).json({ message: 'Archivo de metadatos no encontrado en el respaldo.' });
+    }
+
+    if (!(await fs.stat(publicDir).catch(() => false))) {
+      return res.status(400).json({ message: 'Carpeta "public" no encontrada en el respaldo.' });
+    }
+
+    // Eliminar el archivo ZIP subido tras restaurar
+    await fs.unlink(backupPath);
+
+    res.json({ message: 'Restauración completada exitosamente.' });
+  } catch (error) {
+    console.error('Error al restaurar los datos:', error);
+    res.status(500).json({ message: 'Error al restaurar los datos', error: error.message });
   }
 });
 
