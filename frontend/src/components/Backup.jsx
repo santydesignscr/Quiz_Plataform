@@ -13,7 +13,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const Backup = () => {
   const [backupFile, setBackupFile] = useState(null);
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [IsDownloading, setIsDownloading] = useState(false);
+  const [IsRestoring, setIsRestoring] = useState(false);
   const { toast } = useToast();
 
   const showResponseMessage = (response, isError = false) => {
@@ -26,7 +27,7 @@ const Backup = () => {
   };
 
   const handleBackupDownload = async () => {
-    setIsLoading(true);
+    setIsDownloading(true);
     try {
       const response = await axios.get(`${API_URL}/api/backup`, { 
         responseType: 'blob',
@@ -58,7 +59,7 @@ const Backup = () => {
     } catch (error) {
       showResponseMessage(error.response || error, true);
     } finally {
-      setIsLoading(false);
+      setIsDownloading(false);
     }
   };
 
@@ -69,7 +70,7 @@ const Backup = () => {
       return;
     }
 
-    setIsLoading(true);
+    setIsRestoring(true);
     const formData = new FormData();
     formData.append('backup', backupFile);
     formData.append('password', password);
@@ -89,7 +90,7 @@ const Backup = () => {
     } catch (error) {
       showResponseMessage(error.response || error, true);
     } finally {
-      setIsLoading(false);
+      setIsRestoring(false);
     }
   };
 
@@ -104,9 +105,9 @@ const Backup = () => {
           <Button 
             onClick={handleBackupDownload} 
             className="w-full mb-4"
-            disabled={isLoading}
+            disabled={IsDownloading}
           >
-            {isLoading ? (
+            {IsDownloading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Procesando...
@@ -125,7 +126,7 @@ const Backup = () => {
                   id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
+                  disabled={IsRestoring}
                   required
                 />
               </div>
@@ -137,7 +138,7 @@ const Backup = () => {
                   id="file"
                   onChange={(e) => setBackupFile(e.target.files[0])}
                   accept=".zip"
-                  disabled={isLoading}
+                  disabled={IsRestoring}
                   required
                 />
               </div>
@@ -145,9 +146,9 @@ const Backup = () => {
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={isLoading}
+                disabled={IsRestoring}
               >
-                {isLoading ? (
+                {IsRestoring ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Restaurando...
