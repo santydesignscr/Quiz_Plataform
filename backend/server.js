@@ -6,6 +6,8 @@ const path = require('path');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
+require('dotenv').config({ path: '../frontend/.env' });
+
 const archiver = require('archiver');
 const unzipper = require('unzipper');
 

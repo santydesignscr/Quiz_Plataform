@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Loader2 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -16,6 +17,7 @@ const UploadQuizForm = () => {
   const [file, setFile] = useState(null);
   const [error, setError] = useState(null);
   const [quizUrl, setQuizUrl] = useState(""); // URL del quiz generado
+  const [IsUploading, setIsUploading] = useState(false);
 
   const handleNext = () => setStep((prev) => prev + 1);
   const handleBack = () => setStep((prev) => prev - 1);
@@ -42,6 +44,7 @@ const UploadQuizForm = () => {
     formData.append("file", file);
 
     try {
+      setIsUploading(true);
       const response = await fetch(API_URL + "/api/upload-quiz", {
         method: "POST",
         body: formData,
@@ -55,6 +58,8 @@ const UploadQuizForm = () => {
       }
     } catch (err) {
       setError("Hubo un error al procesar el archivo.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -263,9 +268,17 @@ const UploadQuizForm = () => {
                 onChange={(e) => setFile(e.target.files[0])}
                 required
                 className="w-full"
+                disabled={IsUploading}
               />
-              <Button type="submit" className="w-full">
-                Subir Quiz
+              <Button type="submit" className="w-full" disabled={IsUploading}>
+              {IsUploading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cargando Quiz...
+                </>
+              ) : (
+                'Subir Quiz'
+              )}
               </Button>
               {error && <div className="text-red-500 text-sm">{error}</div>}
             </form>

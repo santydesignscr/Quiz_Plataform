@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Loader2 } from "lucide-react";
 import UploadQuizForm from './UploadQuizForm';
 
 import {
@@ -53,6 +54,11 @@ const Quiz = () => {
   const [fileInput, setFileInput] = useState(null);
   const [fileError, setFileError] = useState('');
   const [updateSuccess, setUpdateSuccess] = useState(false);
+
+  const [IsCheckingPass, setIsCheckingPass] = useState(false);
+  const [IsEditing, setIsEditing] = useState(false);
+  const [IsUpdatingQuestions, setIsUpdatingQuestions] = useState(false);
+  const [IsDeleting, setIsDeleting] = useState(false);
 
   const [IsAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -203,6 +209,7 @@ const Quiz = () => {
   const handlePasswordSubmit = async () => {
     try {
       // Verify password with backend
+      setIsCheckingPass(true);
       const response = await fetch(`${API_URL}/api/quiz/${quizId}/verify-password`, {
         method: 'POST',
         headers: {
@@ -236,6 +243,8 @@ const Quiz = () => {
     } catch (error) {
       console.error('Error verificando contraseña:', error);
       setPasswordError('Error al verificar la contraseña');
+    } finally {
+      setIsCheckingPass(false);
     }
   };
 
@@ -249,7 +258,7 @@ const Quiz = () => {
   const confirmDelete = async () => {
     try {
       console.log('Stored Password:', storedPassword); // Debugging
-
+      setIsDeleting(true);
       const response = await fetch(`${API_URL}/api/quiz/${quizId}`, {
         method: 'DELETE',
         headers: {
@@ -269,6 +278,7 @@ const Quiz = () => {
       console.error('Error eliminando quiz:', error);
       setError('Error al eliminar el quiz');
     } finally {
+      setIsDeleting(true);
       setStoredPassword('');
     }
   };
@@ -287,6 +297,7 @@ const Quiz = () => {
     }
 
     try {
+      setIsEditing(true);
       const formData = new FormData();
       formData.append('title', editedTitle);
       formData.append('subject', editedSubject);
@@ -310,6 +321,7 @@ const Quiz = () => {
       console.error('Error actualizando quiz:', error);
       setEditError('Error al actualizar el quiz');
     } finally {
+      setIsEditing(false);
       setStoredPassword('');
     }
   };
@@ -325,6 +337,7 @@ const Quiz = () => {
     }
 
     try {
+      setIsUpdatingQuestions(true);
       const formData = new FormData();
       formData.append('file', fileInput);
       formData.append('title', quizData.title);
@@ -356,6 +369,9 @@ const Quiz = () => {
     } catch (error) {
       console.error('Error actualizando preguntas:', error);
       setFileError('Error al actualizar las preguntas');
+    } finally {
+      setIsUpdatingQuestions(false);
+      setStoredPassword('');
     }
   };
 
@@ -394,7 +410,7 @@ const Quiz = () => {
       }
       const data = await response.json();
 
-      const questionsResponse = await fetch(`${API_URL}{data.fileUrl}`);
+      const questionsResponse = await fetch(`${API_URL}${data.fileUrl}`);
       if (!questionsResponse.ok) {
         throw new Error(`Error al cargar las preguntas: ${questionsResponse.status} ${questionsResponse.statusText}`);
       }
@@ -489,6 +505,7 @@ const Quiz = () => {
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 className="col-span-3"
+                disabled={IsCheckingPass}
               />
             </div>
             {passwordError && (
@@ -499,8 +516,16 @@ const Quiz = () => {
             <Button
               type="submit"
               onClick={handlePasswordSubmit}
+              disabled={IsCheckingPass}
             >
-              Confirmar
+              {IsCheckingPass ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Confirmando...
+                </>
+              ) : (
+                'Confirmar'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -584,8 +609,16 @@ const Quiz = () => {
             <Button
               type="submit"
               onClick={handleEditSubmit}
+              disabled={IsEditing}
             >
-              Guardar Cambios
+              {IsEditing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Guardando...
+                </>
+              ) : (
+                'Guardar Cambios'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -611,6 +644,7 @@ const Quiz = () => {
                 accept=".json"
                 onChange={(e) => setFileInput(e.target.files[0])}
                 className="col-span-3"
+                disabled={IsUpdatingQuestions}
               />
             </div>
             {fileError && (
@@ -625,8 +659,16 @@ const Quiz = () => {
               <Button
                 type="submit"
                 onClick={handleUpdateQuestionsSubmit}
+                disabled={IsUpdatingQuestions}
               >
-                Actualizar Preguntas
+                {IsUpdatingQuestions ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Actualizando...
+                  </>
+                ) : (
+                  'Actualizar Preguntas'
+                )}
               </Button>
             )}
             <Button
@@ -648,11 +690,20 @@ const Quiz = () => {
             </div>
           </div>
           {renderQuizDetails()}
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={goToUploadQuiz} className="">Crear Quiz</Button>
-            <Button variant="outline" onClick={openEditModal}>Editar</Button>
-            <Button variant="outline" onClick={openUpdateQuestionsModal}>Actualizar Preguntas</Button>
-            <Button variant="destructive" onClick={openDeleteModal}>Eliminar</Button>
+          <div className="flex flex-wrap">
+            <Button variant="outline" onClick={goToUploadQuiz} className="mb-2 mr-2">Crear Quiz</Button>
+            <Button variant="outline" onClick={openEditModal} className="mb-2 mr-2">Editar</Button>
+            <Button variant="outline" onClick={openUpdateQuestionsModal} className="mb-2 mr-2">Actualizar Preguntas</Button>
+            <Button variant="destructive" onClick={openDeleteModal} disabled={IsDeleting} className="mb-2 mr-2">
+            {IsDeleting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Eliminando...
+              </>
+            ) : (
+              'Eliminar'
+            )}
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
