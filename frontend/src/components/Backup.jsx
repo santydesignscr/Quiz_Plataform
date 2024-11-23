@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-const BackupRestore = () => {
+const Backup = () => {
   const [backupFile, setBackupFile] = useState(null);
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
