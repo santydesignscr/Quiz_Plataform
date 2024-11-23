@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react";
 
@@ -94,6 +95,7 @@ const Backup = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
+      <Toaster />
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Respaldo y Restauración</CardTitle>
