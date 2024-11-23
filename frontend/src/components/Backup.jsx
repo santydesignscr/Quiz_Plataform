@@ -17,7 +17,7 @@ const Backup = () => {
   const { toast } = useToast();
 
   const showResponseMessage = (response, isError = false) => {
-    const message = response?.data?.message || response?.message || 'Operación completada';
+    const message = response?.data?.message || response?.message || 'Ocurrió un error inesperado al procesar la transacción';
     toast({
       title: isError ? 'Error' : 'Éxito',
       description: message,
