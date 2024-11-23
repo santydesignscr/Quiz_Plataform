@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const fs = require('fs').promises;
-const fsNP = require('fs').promises;
+const fsStandard = require('fs');
 const path = require('path');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
@@ -494,7 +494,7 @@ app.post('/api/restore', uploadZip.single('backup'), async (req, res) => {
 
     // Extraer el contenido del archivo ZIP
     await new Promise((resolve, reject) => {
-      fsNP.createReadStream(backupPath)
+      fsStandard.createReadStream(backupPath)
         .pipe(unzipper.Extract({ path: __dirname }))
         .on('close', resolve)
         .on('error', reject);
