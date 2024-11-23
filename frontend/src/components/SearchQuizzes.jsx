@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogHeader, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2 } from "lucide-react";
 import UploadQuizForm from './UploadQuizForm';
 
@@ -15,6 +16,7 @@ const SearchQuizzes = () => {
   const [searchBy, setSearchBy] = useState("title");
   const [IsAddModalOpen, setIsAddModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const handleSearchQueryChange = (e) => {
     setSearchQuery(e.target.value);
@@ -26,12 +28,29 @@ const SearchQuizzes = () => {
 
   const fetchQuizzes = async () => {
     try {
+      setError(null);
       setLoading(true);
       const response = await fetch(`${API_URL}/api/search-quizzes?searchBy=${searchBy}&query=${searchQuery}`);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error desconocido al cargar el quiz.");
+      }
+
       const data = await response.json();
       setQuizzes(data);
     } catch (err) {
-      console.error("Error fetching quizzes:", err);
+      if (err.name === "TypeError" && err.message.includes("Failed to fetch")) {
+        setError("Error al intentar conectar con el servidor. Verifica tu conexión a internet.");
+      } 
+
+      else if (err.message.includes("Error desconocido")) {
+        setError("Hubo un error al cargar los quizes. Inténtalo nuevamente más tarde.");
+      } 
+      
+      else {
+        setError(err.message || "Error inesperado al cargar los quizes.");
+      }
     } finally {
       setLoading(false);
     }
@@ -95,9 +114,20 @@ const SearchQuizzes = () => {
             Crear Quiz
           </Button>
         </div>
-  
         {/* Loading State */}
-        {loading ? (
+        {error ? (
+          <div className="max-w-4xl mx-auto p-4">
+            <Card>
+              <CardContent className="p-4">
+                <Alert variant="destructive">
+                  <AlertDescription>
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+          </div>
+        ) : loading ? (
           <div className="max-w-4xl mx-auto p-4">
             <Card>
               <CardContent className="p-4">

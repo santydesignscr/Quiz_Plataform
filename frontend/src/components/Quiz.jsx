@@ -164,19 +164,40 @@ const Quiz = () => {
       try {
         // Primero, obtenemos los metadatos del quiz desde el backend
         const response = await fetch(`${API_URL}/api/quiz/${quizId}`);
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Error desconocido al cargar el quiz.");
+        }
+        
         const data = await response.json();
         setQuizData(data);  // Almacenamos los metadatos del quiz
 
         // Luego, obtenemos las preguntas desde el archivo JSON proporcionado por fileUrl
         const questionsResponse = await fetch(API_URL + data.fileUrl);
+        
+        if (!questionsResponse.ok) {
+          const errorData = await questionsResponse.json();
+          throw new Error(errorData.message || "Error desconocido al cargar las preguntas.");
+        }
+    
         const questionsData = await questionsResponse.json();
 
         // Usamos la lógica original para mezclar las preguntas uniformemente si es necesario
         setQuestions(selectUniformQuestions(questionsData));  // Establecer las preguntas en el estado
         setLoading(false);
       } catch (err) {
-        console.error("Error al cargar las preguntas:", err.message);
-        setError(err.message);
+        if (err.name === "TypeError" && err.message.includes("Failed to fetch")) {
+          setError("Error al intentar conectar con el servidor. Verifica tu conexión a internet.");
+        } 
+
+        else if (err.message.includes("Error desconocido")) {
+          setError("Hubo un error al cargar los datos del quiz. Inténtalo nuevamente más tarde.");
+        } 
+        
+        else {
+          setError(err.message || "Error inesperado al cargar el quiz.");
+        }
         setLoading(false);
       }
     };
@@ -242,7 +263,7 @@ const Quiz = () => {
       }
     } catch (error) {
       console.error('Error verificando contraseña:', error);
-      setPasswordError('Error al verificar la contraseña');
+      setPasswordError('Error al verificar la contraseña.');
     } finally {
       setIsCheckingPass(false);
     }
@@ -257,7 +278,6 @@ const Quiz = () => {
 
   const confirmDelete = async () => {
     try {
-      console.log('Stored Password:', storedPassword); // Debugging
       setIsDeleting(true);
       const response = await fetch(`${API_URL}/api/quiz/${quizId}`, {
         method: 'DELETE',
@@ -276,7 +296,7 @@ const Quiz = () => {
       }
     } catch (error) {
       console.error('Error eliminando quiz:', error);
-      setError('Error al eliminar el quiz');
+      setError('Error al eliminar el quiz. Intente nuevamente.');
     } finally {
       setIsDeleting(true);
       setStoredPassword('');
