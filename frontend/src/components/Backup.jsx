@@ -27,7 +27,7 @@ const BackupRestore = () => {
   const handleBackupDownload = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/backup`, { 
+      const response = await axios.get(`${API_URL}/api/backup`, { 
         responseType: 'blob',
         timeout: 30000 // 30 segundos de timeout
       });
@@ -74,7 +74,7 @@ const BackupRestore = () => {
     formData.append('password', password);
 
     try {
-      const response = await axios.post(`${API_URL}/restore`, formData, {
+      const response = await axios.post(`${API_URL}/api/restore`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
         timeout: 30000 // 30 segundos de timeout
       });
