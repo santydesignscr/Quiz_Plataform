@@ -162,4 +162,4 @@ const BackupRestore = () => {
   );
 };
 
-export default BackupRestore;
+export default Backup
