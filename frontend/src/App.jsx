@@ -12,7 +12,6 @@ function NotFound() {
 
 function App() {
   return (
-    <Toaster />
     <Router>
       <Routes>
         <Route path="/" element={<SearchQuizzes />} />  {/* Página de búsqueda */}
