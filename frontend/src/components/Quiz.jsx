@@ -48,7 +48,7 @@ const Quiz = () => {
   const [editedDescription, setEditedDescription] = useState('');
   const [editedAuthorName, setEditedAuthorName] = useState('');
   const [editedAuthorEmail, setEditedAuthorEmail] = useState('');
-  const [editedLength, setEditedLength] = useState(50);
+  const [editedLength, setEditedLength] = useState('');
   const [editError, setEditError] = useState('');
 
   // State for update questions
@@ -281,9 +281,11 @@ const Quiz = () => {
 
   const handleEditedLengthChange = (e) => {
     const value = e.target.value;
-    const numericValue = Number(value);
     if (value != '') {
+      const numericValue = Number(value);
       setEditedLength(numericValue === 0 ? 50 : numericValue);
+    } else {
+      setEditedLength('');
     }
   };
 
@@ -337,7 +339,7 @@ const Quiz = () => {
       formData.append('description', editedDescription);
       formData.append('authorName', editedAuthorName);
       formData.append('authorEmail', editedAuthorEmail);
-      formData.append('length', editedLength);
+      formData.append('length', editedLength === '' || editedLength === 0 ? 50 : editedLength);
       formData.append('password', storedPassword);
 
       const response = await fetch(`${API_URL}/api/quiz/${quizId}`, {
@@ -644,7 +646,7 @@ const Quiz = () => {
               <Input
                 id="length"
                 type="number"
-                value={editedLength === '' ? '' : editedLength}
+                value={editedLength}
                 onChange={handleEditedLengthChange}
                 className="col-span-3"
               />

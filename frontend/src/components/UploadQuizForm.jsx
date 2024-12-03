@@ -11,7 +11,7 @@ const UploadQuizForm = () => {
   const [step, setStep] = useState(1); // Controla los pasos
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
-  const [quizLength, setQuizLength] = useState(50);
+  const [quizLength, setQuizLength] = useState('');
   const [description, setDescription] = useState("");
   const [authorName, setAuthorName] = useState(""); // Nombre del autor
   const [authorEmail, setAuthorEmail] = useState(""); // Correo del autor
@@ -39,7 +39,7 @@ const UploadQuizForm = () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("subject", subject);
-    formData.append("length", quizLength);
+    formData.append("length", quizLength === '' || quizLength === 0 ? 50 : quizLength);
     formData.append("description", description);
     formData.append("authorName", authorName);
     formData.append("authorEmail", authorEmail);
@@ -68,9 +68,11 @@ const UploadQuizForm = () => {
 
   const handleQuizLengthChange = (e) => {
     const value = e.target.value;
-    const numericValue = Number(value);
     if (value != '') {
+      const numericValue = Number(value);
       setQuizLength(numericValue === 0 ? 50 : numericValue);
+    } else {
+      setQuizLength('');
     }
   };
 
@@ -140,7 +142,7 @@ const UploadQuizForm = () => {
                 id="quizLength"
                 type="number"
                 placeholder="Tamaño del Quiz (50 predeterminado)"
-                value={quizLength === '' ? '' : quizLength}
+                value={quizLength}
                 onChange={handleQuizLengthChange}
                 required
                 className="col-span-3 w-full"
