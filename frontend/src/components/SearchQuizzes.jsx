@@ -55,6 +55,14 @@ const SearchQuizzes = () => {
       setLoading(false);
     }
   };
+  
+  const generateExtract = (text, maxWords) => {
+    const words = text.split(' ');
+    if (words.length > maxWords) {
+      return words.slice(0, maxWords).join(' ') + '...';
+    }
+    return text;
+  };
 
   useEffect(() => {
     fetchQuizzes();
@@ -150,7 +158,7 @@ const SearchQuizzes = () => {
                       <strong>Asignatura:</strong> {quiz.subject}
                     </p>
                     <p className="text-sm">
-                      <strong>Descripción:</strong> {quiz.description}
+                      <strong>Descripción:</strong> {generateExtract(quiz.description, 20)}
                     </p>
                     <p className="text-sm">
                       <strong>Autor:</strong> {quiz.authorName}

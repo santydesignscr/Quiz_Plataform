@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from '@/components/ui/label';
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
 
@@ -10,6 +11,7 @@ const UploadQuizForm = () => {
   const [step, setStep] = useState(1); // Controla los pasos
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
+  const [quizLength, setQuizLength] = useState(50);
   const [description, setDescription] = useState("");
   const [authorName, setAuthorName] = useState(""); // Nombre del autor
   const [authorEmail, setAuthorEmail] = useState(""); // Correo del autor
@@ -37,6 +39,7 @@ const UploadQuizForm = () => {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("subject", subject);
+    formData.append("length", quizLength);
     formData.append("description", description);
     formData.append("authorName", authorName);
     formData.append("authorEmail", authorEmail);
@@ -60,6 +63,14 @@ const UploadQuizForm = () => {
       setError("Hubo un error al procesar el archivo.");
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleQuizLengthChange = (e) => {
+    const value = e.target.value;
+    const numericValue = Number(value);
+    if (value != '') {
+      setQuizLength(numericValue === 0 ? 50 : numericValue);
     }
   };
 
@@ -89,37 +100,69 @@ const UploadQuizForm = () => {
         {/* Step 1: Detalles del Quiz */}
         {step === 1 && (
           <>
-            <h2 className="text-lg font-semibold text-gray-700">
-              Detalles del Quiz
-            </h2>
-            <form className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-700">
+            Detalles del Quiz
+          </h2>
+          <form className="space-y-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="title" className="text-right">
+                Título
+              </Label>
               <Input
+                id="title"
                 type="text"
                 placeholder="Título del Quiz"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
-                className="w-full"
+                className="col-span-3 w-full"
               />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="subject" className="text-right">
+                Asignatura
+              </Label>
               <Input
+                id="subject"
                 type="text"
                 placeholder="Asignatura"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 required
-                className="w-full"
+                className="col-span-3 w-full"
               />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="quizLength" className="text-right">
+                Tamaño del Quiz (50 predeterminado)
+              </Label>
+              <Input
+                id="quizLength"
+                type="number"
+                placeholder="Tamaño del Quiz (50 predeterminado)"
+                value={quizLength === '' ? '' : quizLength}
+                onChange={handleQuizLengthChange}
+                required
+                className="col-span-3 w-full"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right">
+                Descripción
+              </Label>
               <Textarea
+                id="description"
                 placeholder="Descripción del Quiz"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full"
+                className="col-span-3 w-full"
               />
-            </form>
-            <Button onClick={handleNext} className="w-full">
-              Siguiente
-            </Button>
-          </>
+            </div>
+          </form>
+          <Button onClick={handleNext} className="w-full">
+            Siguiente
+          </Button>
+        </>        
         )}
 
         {/* Step 2: Información del Autor */}

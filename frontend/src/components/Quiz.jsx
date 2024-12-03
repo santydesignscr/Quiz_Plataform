@@ -48,6 +48,7 @@ const Quiz = () => {
   const [editedDescription, setEditedDescription] = useState('');
   const [editedAuthorName, setEditedAuthorName] = useState('');
   const [editedAuthorEmail, setEditedAuthorEmail] = useState('');
+  const [editedLength, setEditedLength] = useState(50);
   const [editError, setEditError] = useState('');
 
   // State for update questions
@@ -183,8 +184,10 @@ const Quiz = () => {
     
         const questionsData = await questionsResponse.json();
 
+        const quizLength = data.length || 50;
+
         // Usamos la lógica original para mezclar las preguntas uniformemente si es necesario
-        setQuestions(selectUniformQuestions(questionsData));  // Establecer las preguntas en el estado
+        setQuestions(selectUniformQuestions(questionsData, quizLength));  // Establecer las preguntas en el estado
         setLoading(false);
       } catch (err) {
         if (err.name === "TypeError" && err.message.includes("Failed to fetch")) {
@@ -253,6 +256,7 @@ const Quiz = () => {
           setEditedDescription(quizData.description);
           setEditedAuthorName(quizData.authorName);
           setEditedAuthorEmail(quizData.authorEmail);
+          setEditedLength(quizData.length);
         } else if (modalType === 'delete') {
           setModalType('confirmDelete');
         } else if (modalType === 'updateQuestions') {
@@ -274,6 +278,14 @@ const Quiz = () => {
       confirmDelete();
     }
   }, [modalType, storedPassword]);
+
+  const handleEditedLengthChange = (e) => {
+    const value = e.target.value;
+    const numericValue = Number(value);
+    if (value != '') {
+      setEditedLength(numericValue === 0 ? 50 : numericValue);
+    }
+  };
 
 
   const confirmDelete = async () => {
@@ -310,7 +322,8 @@ const Quiz = () => {
       editedSubject === quizData.subject &&
       editedDescription === quizData.description &&
       editedAuthorName === quizData.authorName &&
-      editedAuthorEmail === quizData.authorEmail
+      editedAuthorEmail === quizData.authorEmail &&
+      editedLength === quizData.length
     ) {
       setEditError('Debes editar al menos un campo.');
       return;
@@ -324,6 +337,7 @@ const Quiz = () => {
       formData.append('description', editedDescription);
       formData.append('authorName', editedAuthorName);
       formData.append('authorEmail', editedAuthorEmail);
+      formData.append('length', editedLength);
       formData.append('password', storedPassword);
 
       const response = await fetch(`${API_URL}/api/quiz/${quizId}`, {
@@ -381,7 +395,8 @@ const Quiz = () => {
         // Reload questions
         const questionsResponse = await fetch(API_URL + updatedQuizData.fileUrl);
         const questionsData = await questionsResponse.json();
-        setQuestions(selectUniformQuestions(questionsData));
+        const quizLength = updatedQuizData.length || 50;
+        setQuestions(selectUniformQuestions(questionsData, quizLength));
       } else {
         const errorData = await response.json();
         setFileError(errorData.message || 'Error al actualizar las preguntas');
@@ -435,8 +450,9 @@ const Quiz = () => {
         throw new Error(`Error al cargar las preguntas: ${questionsResponse.status} ${questionsResponse.statusText}`);
       }
       const questionsData = await questionsResponse.json();
-
-      setQuestions(selectUniformQuestions(questionsData));
+      
+      const quizLength = data.length || 50;
+      setQuestions(selectUniformQuestions(questionsData, quizLength));
       setCurrentAnswers({});
       setShowResults(false);
       setScore(0);
@@ -618,6 +634,18 @@ const Quiz = () => {
                 type="email"
                 value={editedAuthorEmail}
                 onChange={(e) => setEditedAuthorEmail(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="length" className="text-right">
+                Tamaño del Quiz (50 predeterminado)
+              </Label>
+              <Input
+                id="length"
+                type="number"
+                value={editedLength === '' ? '' : editedLength}
+                onChange={handleEditedLengthChange}
                 className="col-span-3"
               />
             </div>

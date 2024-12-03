@@ -127,7 +127,8 @@ app.post('/api/upload-quiz', upload.single('file'), async (req, res) => {
       description,
       authorName,
       authorEmail,
-      password
+      password,
+      length = 50
     } = req.body;
 
     // Validaciones
@@ -193,7 +194,8 @@ app.post('/api/upload-quiz', upload.single('file'), async (req, res) => {
       authorEmail,
       fileUrl: `/public/${fileName}`,
       createdAt: new Date().toISOString(),
-      password: hashedPassword
+      password: hashedPassword,
+      length
     };
 
     // Leer metadatos existentes
@@ -363,7 +365,8 @@ app.put('/api/quiz/:id', upload.single('file'), async (req, res) => {
       description,
       authorName,
       authorEmail,
-      password
+      password,
+      length = 50
     } = req.body;
 
     const quizzesData = await fs.readFile('quizzes_metadata.json', 'utf-8');
@@ -410,6 +413,7 @@ app.put('/api/quiz/:id', upload.single('file'), async (req, res) => {
     quiz.description = description;
     quiz.authorName = authorName;
     quiz.authorEmail = authorEmail;
+    quiz.length = length;
 
     // Si se proporciona un nuevo archivo JSON
     if (req.file) {
